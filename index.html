@@ -7,7 +7,6 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Kaydırma çubuklarını gizleme (şık görünüm için) */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -27,8 +26,8 @@
             <h1 class="text-xl font-black tracking-wider text-orange-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">HARCAMALARIM</h1>
         </div>
 
-        <!-- 1. Kaydırılabilir Ay Seçim Şeridi (Ortalanmış) -->
-        <div class="bg-orange-50 border-b border-orange-100 py-3 overflow-x-auto no-scrollbar flex items-center gap-3 px-4 shrink-0" id="ay-seridi">
+        <!-- 1. Sabit / Kaydırılabilir Ay Seçim Şeridi -->
+        <div class="bg-orange-50 border-b border-orange-100 py-3 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="ay-seridi">
             <!-- Aylar JavaScript ile eklenecek -->
         </div>
 
@@ -118,18 +117,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Tarih Durumları (Varsayılan: Bugünün ayı ve günü)
+        // Varsayılan: Bugünün tarihi (Örn: 2 Eylül 2026)
         let simdikiTarih = new Date();
         let secilenAy = simdikiTarih.getMonth(); 
         let secilenYil = simdikiTarih.getFullYear();
-        let secilenGun = simdikiTarih.getDate(); // Varsayılan bugün
+        let secilenGun = simdikiTarih.getDate();
 
         const aylarListesi = [
             "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
         ];
 
-        // Ay Şeridini Oluşturma ve Ortalama
+        let ilkYukleme = true; // Sayfanın ilk açılışını yakalamak için
+
         function aySeridiniOlustur() {
             const seritDiv = document.getElementById('ay-seridi');
             seritDiv.innerHTML = '';
@@ -138,17 +138,16 @@
                 const isSelected = (index === secilenAy);
                 const btn = document.createElement('button');
                 
-                btn.className = `px-4 py-2 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap shrink-0 ${
+                btn.className = `px-4 py-2 rounded-2xl font-bold transition-all duration-200 whitespace-nowrap shrink-0 ${
                     isSelected 
-                        ? 'bg-orange-600 text-white shadow-md scale-110 text-base' 
+                        ? 'bg-orange-600 text-white shadow-md text-base' 
                         : 'bg-white text-gray-500 hover:bg-orange-100/50 border border-orange-100 text-sm'
                 }`;
                 btn.innerText = `${ayAdi} ${secilenYil}`;
                 
                 btn.onclick = () => {
                     secilenAy = index;
-                    // Ay değiştirildiğinde gün olarak o ayın 1'ini veya mantıklı bir günü seçelim
-                    secilenGun = 1; 
+                    secilenGun = 1; // Başka aya geçince o ayın 1'ini seç
                     aySeridiniOlustur();
                     gunSeridiniOlustur();
                     verileriIsleVeGoster(window.sonVeriler);
@@ -157,37 +156,36 @@
                 seritDiv.appendChild(btn);
             });
 
-            // Seçilen ayı ortala
-            setTimeout(() => {
-                const aktifBtn = seritDiv.children[secilenAy];
-                if (aktifBtn) {
-                    seritDiv.scrollTo({
-                        left: aktifBtn.offsetLeft - seritDiv.offsetWidth / 2 + aktifBtn.offsetWidth / 2,
-                        behavior: 'smooth'
-                    });
-                }
-            }, 50);
+            // Sadece ilk açılışta seçilen ayı ortaya getir, sonrasında kullanıcıya bırak
+            if (ilkYukleme) {
+                setTimeout(() => {
+                    const aktifBtn = seritDiv.children[secilenAy];
+                    if (aktifBtn) {
+                        seritDiv.scrollTo({
+                            left: aktifBtn.offsetLeft - seritDiv.offsetWidth / 2 + aktifBtn.offsetWidth / 2,
+                            behavior: 'auto'
+                        });
+                    }
+                }, 50);
+            }
         }
 
-        // Gün Şeridini Oluşturma (Seçilen ayın günleri)
         function gunSeridiniOlustur() {
             const gunSeritDiv = document.getElementById('gun-seridi');
             gunSeritDiv.innerHTML = '';
 
-            // Seçilen ayın kaç gün çektiğini bulma
             const toplamGunSayisi = new Date(secilenYil, secilenAy + 1, 0).getDate();
 
             for (let gun = 1; gun <= toplamGunSayisi; gun++) {
                 const isSelected = (gun === secilenGun);
                 const gunBtn = document.createElement('button');
 
-                // Günün haftanın hangi günü olduğunu bulma (Pzt, Sal vb.)
                 const tarihObj = new Date(secilenYil, secilenAy, gun);
                 const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
 
                 gunBtn.className = `px-3 py-1.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center text-xs ${
                     isSelected
-                        ? 'bg-orange-500 text-white shadow-sm scale-105'
+                        ? 'bg-orange-500 text-white shadow-sm'
                         : 'bg-slate-50 text-gray-600 hover:bg-orange-100/40 border border-gray-100'
                 }`;
                 gunBtn.innerHTML = `<span class="text-[10px] opacity-80">${gunAdi}</span><span class="text-sm font-bold">${gun}</span>`;
@@ -201,16 +199,19 @@
                 gunSeritDiv.appendChild(gunBtn);
             }
 
-            // Seçilen günü ortala
-            setTimeout(() => {
-                const aktifGunBtn = gunSeritDiv.children[secilenGun - 1];
-                if (aktifGunBtn) {
-                    gunSeritDiv.scrollTo({
-                        left: aktifGunBtn.offsetLeft - gunSeritDiv.offsetWidth / 2 + aktifGunBtn.offsetWidth / 2,
-                        behavior: 'smooth'
-                    });
-                }
-            }, 50);
+            // Sadece ilk açılışta bugünün gününü ortaya getir
+            if (ilkYukleme) {
+                setTimeout(() => {
+                    const aktifGunBtn = gunSeritDiv.children[secilenGun - 1];
+                    if (aktifGunBtn) {
+                        gunSeritDiv.scrollTo({
+                            left: aktifGunBtn.offsetLeft - gunSeritDiv.offsetWidth / 2 + aktifGunBtn.offsetWidth / 2,
+                            behavior: 'auto'
+                        });
+                    }
+                    ilkYukleme = false; // İlk yükleme tamamlandı, artık kullanıcı serbestçe kaydırabilir
+                }, 50);
+            }
         }
 
         window.modalAc = function() {
@@ -266,7 +267,6 @@
             if (data) {
                 const harcamalar = Object.entries(data).reverse();
                 
-                // Seçilen Ay, Yıl ve Güne göre filtreleme
                 const filtrelenmisHarcamalar = harcamalar.filter(([id, item]) => {
                     const hTarih = new Date(item.tarih);
                     return hTarih.getMonth() === secilenAy && 
@@ -279,7 +279,6 @@
                     
                     filtrelenmisHarcamalar.forEach(([id, item]) => {
                         const tarihObj = new Date(item.tarih);
-                        const saatFormatli = tarihObj.toLocaleDateString('tr-TR', { hour: '2-digit', minute: '2-digit' }); // veya sadece saat
                         const zamanStr = tarihObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
                         const itemElement = document.createElement('div');
@@ -305,7 +304,6 @@
             }
         }
 
-        // Firebase'den Canlı Veri Dinleme
         const harcamalarRef = ref(db, 'harcamalar');
         onValue(harcamalarRef, (snapshot) => {
             window.sonVeriler = snapshot.val();
@@ -314,7 +312,6 @@
             verileriIsleVeGoster(window.sonVeriler);
         });
 
-        // Sayfa ilk açıldığında çalıştır
         aySeridiniOlustur();
         gunSeridiniOlustur();
     </script>
