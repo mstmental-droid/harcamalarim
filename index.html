@@ -18,13 +18,14 @@
 </head>
 <body class="bg-[#12141c] text-slate-100 flex flex-col items-center justify-center min-h-screen p-3 font-sans select-none">
 
-    <!-- Giriş PIN Ekranı (Başlangıçta görünür) -->
+    <!-- Giriş PIN Ekranı -->
     <div id="pin-ekrani" class="fixed inset-0 bg-[#12141c] z-50 flex flex-col items-center justify-center p-6">
         <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center">
             <h2 class="text-2xl font-black text-slate-100 mb-2">HARCAMALARIMIZ</h2>
             <p class="text-xs text-slate-400 mb-6">Lütfen 4 haneli PIN kodunu girin</p>
             
-            <input type="password" id="pin-input" maxlength="4" placeholder="••••" 
+            <!-- inputmode="numeric" ve pattern="[0-9]*" ile direkt sayı klavyesi açılır -->
+            <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="numeric" pattern="[0-9]*"
                    class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono"
                    oninput="pinKontrol(this)">
             
@@ -108,7 +109,7 @@
                     </select>
                 </div>
 
-                <!-- Açıklama Kutusu (Açıklama gerektiren kategoriler seçildiğinde görünür) -->
+                <!-- Açıklama Kutusu -->
                 <div id="aciklama-alani" class="hidden">
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Açıklama</label>
                     <input type="text" id="aciklama" placeholder="Açıklama" 
@@ -118,7 +119,7 @@
                 <!-- Tutar Girişi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Tutar (TL)</label>
-                    <input type="text" id="tutar" placeholder="0,00" required 
+                    <input type="text" id="tutar" placeholder="0,00" required inputmode="numeric"
                            class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none text-lg font-bold bg-[#12141c] text-slate-100 placeholder:text-slate-600"
                            oninput="tutarBicimlendir(this)">
                 </div>
@@ -126,7 +127,7 @@
                 <!-- Butonlar -->
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="modalKapat()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3.5 rounded-2xl transition duration-200">
-                        İçeri Al / İptal
+                        İptal
                     </button>
                     <button type="submit" class="flex-1 bg-[#ff5722] hover:bg-[#f4511e] text-white font-semibold py-3.5 rounded-2xl shadow-lg transition duration-200">
                         Kaydet
@@ -154,6 +155,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Sayfa açıldığında PIN inputuna otomatik odaklan
+        window.onload = function() {
+            const pinInput = document.getElementById('pin-input');
+            if (pinInput) {
+                pinInput.focus();
+            }
+        };
+
         // PIN Kontrolü
         window.pinKontrol = function(input) {
             if (input.value === "0000") {
@@ -179,7 +188,6 @@
 
         window.sonVeriler = null;
 
-        // Açıklama gerektiren özel kategoriler ve Diğer
         window.kategoriKontrol = function(select) {
             const alan = document.getElementById('aciklama-alani');
             const aciklamaInput = document.getElementById('aciklama');
