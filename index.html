@@ -21,24 +21,33 @@
     <!-- Ana Konteyner -->
     <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] border border-slate-800 relative">
         
-        <!-- Üst Başlık ve Bilgiler (Gönderdiğin görseldeki tasarıma göre) -->
+        <!-- Üst Başlık, Medo ve Neynoş, Genel Toplam ve Ay Değiştirici -->
         <div class="p-5 text-center shrink-0 border-b border-slate-800/80 bg-[#161922]">
             <h1 class="text-xl font-extrabold tracking-wide text-slate-100">HARCAMALARIMIZ</h1>
             <p class="text-xs font-medium text-slate-400 mt-0.5">Medo ve Neynoş</p>
             
-            <!-- Ay Değiştirici (Oklar ve Ortada Ay Yıl) -->
-            <div class="flex items-center justify-between mt-4 px-2 bg-[#1e222d] py-2.5 rounded-2xl border border-slate-700/50">
-                <button onclick="ayDegistir(-1)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-xl transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                <span id="aktif-ay-yazisi" class="text-base font-bold text-slate-100 tracking-wide">Eylül 2026</span>
-                <button onclick="ayDegistir(1)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-xl transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                </button>
+            <!-- Genel Toplam Harcama Alanı -->
+            <div class="mt-2 text-orange-400 font-extrabold text-sm" id="genel-toplam-yazi">
+                Toplam: 0,00 TL
+            </div>
+            
+            <!-- Ay Değiştirici (Oklar, Ortada Ay Yıl ve Altında Aylık Toplam) -->
+            <div class="flex flex-col mt-3 bg-[#1e222d] py-2.5 px-3 rounded-2xl border border-slate-700/50">
+                <div class="flex items-center justify-between">
+                    <button onclick="ayDegistir(-1)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-xl transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <span id="aktif-ay-yazisi" class="text-base font-bold text-slate-100 tracking-wide">Eylül 2026</span>
+                    <button onclick="ayDegistir(1)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-xl transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <!-- Aylık Toplam Tutar -->
+                <span id="aylik-toplam-yazi" class="text-xs text-orange-400 font-semibold mt-1">Aylık Toplam: 0,00 TL</span>
             </div>
         </div>
 
-        <!-- Günler Şeridi (Aynen korundu) -->
+        <!-- Günler Şeridi -->
         <div class="bg-[#12141c] border-b border-slate-800 py-3 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
             <!-- Günler -->
         </div>
@@ -133,7 +142,6 @@
 
         window.sonVeriler = null;
 
-        // Ok tuşları ile ay değiştirme fonksiyonu
         window.ayDegistir = function(yon) {
             secilenAy += yon;
             if (secilenAy > 11) {
@@ -143,12 +151,30 @@
                 secilenAy = 11;
                 secilenYil--;
             }
-            secilenGun = 1; // Ay değişince ilk günü seç
+            secilenGun = 1; 
             ekraniGuncelle();
         }
 
         function ekraniGuncelle() {
             document.getElementById('aktif-ay-yazisi').innerText = `${aylarListesi[secilenAy]} ${secilenYil}`;
+            
+            // Genel Toplam ve Aylık Toplam Hesaplama
+            let genelToplam = 0;
+            let aylikToplam = 0;
+
+            if (window.sonVeriler) {
+                Object.values(window.sonVeriler).forEach(item => {
+                    genelToplam += item.tutar;
+                    const hTarih = new Date(item.tarih);
+                    if (hTarih.getMonth() === secilenAy && hTarih.getFullYear() === secilenYil) {
+                        aylikToplam += item.tutar;
+                    }
+                });
+            }
+
+            document.getElementById('genel-toplam-yazi').innerText = `Genel Toplam: ${genelToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL`;
+            document.getElementById('aylik-toplam-yazi').innerText = `Aylık Toplam: ${aylikToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL`;
+
             gunSeridiniOlustur();
             verileriIsleVeGoster(window.sonVeriler);
         }
