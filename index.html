@@ -16,7 +16,7 @@
         }
     </style>
 </head>
-<body class="bg-[#12141c] text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 font-sans relative">
+<body class="bg-[#12141c] text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 font-sans relative select-none">
 
     <!-- Ana Konteyner -->
     <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] border border-slate-800 relative">
@@ -31,7 +31,7 @@
                 Toplam: 0,00 TL
             </div>
             
-            <!-- Ay Değiştirici (Oklar, Ortada Ay Yıl ve Altında Aylık Toplam) -->
+            <!-- Ay Değiştirici -->
             <div class="flex flex-col mt-3 bg-[#1e222d] py-2.5 px-3 rounded-2xl border border-slate-700/50">
                 <div class="flex items-center justify-between">
                     <button onclick="ayDegistir(-1)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-xl transition">
@@ -115,7 +115,7 @@
     <!-- Firebase ve Uygulama Mantığı -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBVtbl20mGQJda1QmqD9Bm-4PNyRBuWnUY",
@@ -158,7 +158,6 @@
         function ekraniGuncelle() {
             document.getElementById('aktif-ay-yazisi').innerText = `${aylarListesi[secilenAy]} ${secilenYil}`;
             
-            // Genel Toplam ve Aylık Toplam Hesaplama
             let genelToplam = 0;
             let aylikToplam = 0;
 
@@ -172,7 +171,7 @@
                 });
             }
 
-            document.getElementById('genel-toplam-yazi').innerText = `Genel Toplam: ${genelToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL`;
+            document.getElementById('genel-toplam-yazi').innerText = `Toplam: ${genelToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL`;
             document.getElementById('aylik-toplam-yazi').innerText = `Aylık Toplam: ${aylikToplam.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL`;
 
             gunSeridiniOlustur();
@@ -272,6 +271,17 @@
             });
         }
 
+        // Harcama Silme Fonksiyonu
+        window.harcamaSil = function(id) {
+            if (confirm("Bu harcamayı silmek istediğinizden emin misiniz?")) {
+                const itemRef = ref(db, `harcamalar/${id}`);
+                remove(itemRef).catch((error) => {
+                    console.error("Silme hatası: ", error);
+                    alert("Harcama silinemedi.");
+                });
+            }
+        }
+
         function verileriIsleVeGoster(data) {
             const listeDiv = document.getElementById('harcama-listesi');
             const bosMesaj = document.getElementById('bos-mesaj');
@@ -295,18 +305,81 @@
                         const tarihObj = new Date(item.tarih);
                         const zamanStr = tarihObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
+                        // Dış Kapsayıcı (Göreceli konum ve taşmayı gizleme)
+                        const container = document.createElement('div');
+                        container.className = "relative overflow-hidden rounded-2xl";
+
+                        // Arkadaki Kırmızı Sil Butonu Katmanı
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = "absolute inset-y-0 right-0 w-24 bg-red-600 text-white font-bold flex items-center justify-center gap-1 text-sm transition active:bg-red-700";
+                        deleteBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Sil
+                        `;
+                        deleteBtn.onclick = () => window.harcamaSil(id);
+                        container.appendChild(deleteBtn);
+
+                        // Öndeki Kaydırılabilir Harcama Kartı
                         const itemElement = document.createElement('div');
-                        itemElement.className = "bg-[#1e222d] p-4 rounded-2xl shadow-md border border-slate-800 flex justify-between items-center text-slate-100";
+                        itemElement.className = "relative bg-[#1e222d] p-4 rounded-2xl shadow-md border border-slate-800 flex justify-between items-center text-slate-100 transition-transform duration-150 cursor-grab select-none";
                         itemElement.innerHTML = `
                             <div>
-                                <span class="inline-block px-3 py-1 text-xs font-bold bg-[#252a37] text-orange-400 rounded-lg mb-1">${item.kategori}</span>
-                                <p class="text-xs text-slate-400">Saat: ${zamanStr}</p>
+                                <span class="inline-block px-3 py-1 text-xs font-bold bg-[#252a37] text-orange-400 rounded-lg mb-1 pointer-events-none">${item.kategori}</span>
+                                <p class="text-xs text-slate-400 pointer-events-none">Saat: ${zamanStr}</p>
                             </div>
-                            <div class="text-right">
+                            <div class="text-right pointer-events-none">
                                 <span class="text-lg font-black text-slate-100">${item.tutar.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</span>
                             </div>
                         `;
-                        listeDiv.appendChild(itemElement);
+
+                        // Dokunmatik ve Fare Kaydırma Olayları (Swipe Mantığı)
+                        let startX = 0;
+                        let currentX = 0;
+                        let isDragging = false;
+
+                        function onStart(e) {
+                            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                            isDragging = true;
+                            itemElement.style.transition = 'none';
+                        }
+
+                        function onMove(e) {
+                            if (!isDragging) return;
+                            currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                            const diff = currentX - startX;
+                            // Sadece sola doğru maksimum -100px kaymasına izin ver
+                            if (diff < 0 && diff >= -110) {
+                                itemElement.style.transform = `translateX(${diff}px)`;
+                            }
+                        }
+
+                        function onEnd() {
+                            if (!isDragging) return;
+                            isDragging = false;
+                            itemElement.style.transition = 'transform 0.2s ease-out';
+                            const diff = currentX - startX;
+                            // Yeterince sola çekildiyse (-40px üstü) silme butonunu açık bırak
+                            if (diff < -40) {
+                                itemElement.style.transform = 'translateX(-96px)';
+                            } else {
+                                itemElement.style.transform = 'translateX(0px)';
+                            }
+                        }
+
+                        // Dokunmatik ekranlar (Telefon)
+                        itemElement.addEventListener('touchstart', onStart, { passive: true });
+                        itemElement.addEventListener('touchmove', onMove, { passive: true });
+                        itemElement.addEventListener('touchend', onEnd);
+
+                        // Fare hareketleri (Masaüstü/PC)
+                        itemElement.addEventListener('mousedown', onStart);
+                        window.addEventListener('mousemove', (e) => { if (isDragging) onMove(e); });
+                        window.addEventListener('mouseup', () => { if (isDragging) onEnd(); });
+
+                        container.appendChild(itemElement);
+                        listeDiv.appendChild(container);
                     });
                 } else {
                     bosMesaj.innerText = `${secilenGun} ${aylarListesi[secilenAy]} ${secilenYil} tarihinde harcama bulunmuyor.`;
