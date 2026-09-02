@@ -20,18 +20,26 @@
 
     <!-- Giriş PIN Ekranı -->
     <div id="pin-ekrani" class="fixed inset-0 bg-[#12141c] z-50 flex flex-col items-center justify-center p-6">
-        <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center">
+        <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center" onclick="pinAlninaTikla()">
             <h2 class="text-2xl font-black text-slate-100 mb-2">HARCAMALARIMIZ</h2>
-            <p class="text-xs text-slate-400 mb-6">Lütfen 4 haneli PIN kodunu girin</p>
+            <p class="text-xs text-slate-400 mb-6">PIN kodunu girmek için dokun</p>
             
-            <!-- inputmode="numeric" ve pattern="[0-9]*" ile direkt sayı klavyesi açılır -->
             <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="numeric" pattern="[0-9]*"
-                   class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono"
-                   oninput="pinKontrol(this)">
+                   class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono pointer-events-none"
+                   readonly>
             
-            <p id="pin-hata" class="text-red-500 text-xs font-semibold hidden">Hatalı PIN! Tekrar deneyin.</p>
+            <!-- Klavyeyi kesin tetiklemek için dokunmatik buton -->
+            <button type="button" class="w-full bg-[#ff5722] text-white font-bold py-3.5 rounded-2xl shadow-lg active:scale-95 transition">
+                KLAVYEYİ AÇ
+            </button>
+
+            <p id="pin-hata" class="text-red-500 text-xs font-semibold mt-4 hidden">Hatalı PIN! Tekrar deneyin.</p>
         </div>
     </div>
+
+    <!-- Görünmez ve Gerçek Sayı Giriş Alanı (Klavyeyi tetiklemek için) -->
+    <input type="text" id="gizli-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" 
+           class="absolute opacity-0 pointer-events-none" oninput="pinGercekGiris(this)">
 
     <!-- Ana Konteyner -->
     <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[92vh] border border-slate-800 relative">
@@ -155,22 +163,41 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Sayfa açıldığında PIN inputuna otomatik odaklan
+        // PIN ekranına tıklandığında görünmez inputa odaklan ve klavyeyi aç
+        window.pinAlninaTikla = function() {
+            const gizliInput = document.getElementById('gizli-input');
+            gizliInput.focus();
+        }
+
+        // Sayfa açıldığında otomatik olarak gizli inputa odaklanmayı dene
         window.onload = function() {
-            const pinInput = document.getElementById('pin-input');
-            if (pinInput) {
-                pinInput.focus();
-            }
+            setTimeout(() => {
+                const gizliInput = document.getElementById('gizli-input');
+                if (gizliInput) gizliInput.focus();
+            }, 300);
         };
 
-        // PIN Kontrolü
-        window.pinKontrol = function(input) {
-            if (input.value === "0000") {
+        // Gerçek PIN Giriş İşlemi
+        window.pinGercekGiris = function(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val.length > 4) val = val.slice(0, 4);
+            input.value = val;
+
+            // Görsel PIN kutucuğunu güncelle (•••• şeklinde)
+            let masked = '';
+            for (let i = 0; i < val.length; i++) {
+                masked += '•';
+            }
+            document.getElementById('pin-input').value = masked;
+
+            if (val === "0000") {
                 document.getElementById('pin-ekrani').classList.add('hidden');
-            } else if (input.value.length === 4) {
+                input.blur();
+            } else if (val.length === 4) {
                 document.getElementById('pin-hata').classList.remove('hidden');
                 setTimeout(() => {
                     input.value = '';
+                    document.getElementById('pin-input').value = '';
                     document.getElementById('pin-hata').classList.add('hidden');
                 }, 1000);
             }
