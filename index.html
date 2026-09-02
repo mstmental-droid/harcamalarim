@@ -26,14 +26,14 @@
             <h1 class="text-xl font-black tracking-wider text-orange-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">HARCAMALARIM</h1>
         </div>
 
-        <!-- 1. Ay Seçim Şeridi (Şu anki ay en başta başlayacak şekilde sıralandı) -->
+        <!-- 1. Ay Seçim Şeridi -->
         <div class="bg-orange-50 border-b border-orange-100 py-3 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="ay-seridi">
-            <!-- Aylar JavaScript ile eklenecek -->
+            <!-- Aylar -->
         </div>
 
-        <!-- 2. Seçilen Aya Ait Günler Şeridi -->
-        <div class="bg-white border-b border-gray-100 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
-            <!-- Günler JavaScript ile eklenecek -->
+        <!-- 2. Günler Şeridi (İçinde toplam tutarlar yazacak) -->
+        <div class="bg-white border-b border-gray-100 py-3 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
+            <!-- Günler -->
         </div>
 
         <!-- İçerik Alanı (Harcama Listesi) -->
@@ -127,26 +127,17 @@
             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
         ];
 
+        window.sonVeriler = null;
+
         function aySeridiniOlustur() {
             const seritDiv = document.getElementById('ay-seridi');
             seritDiv.innerHTML = '';
 
-            // Aylar listesini şu anki aydan başlatıp yılın sonuna, sonra baştan devam edecek şekilde düzenleyelim
-            // Böylece şu anki ay her zaman en başta (sola dayalı ve tam görünür) olacak.
-            for (let i = 0; i < 12; i++) {
-                let index = (secilenAy + i) % 12; // Sabit olarak seçilen ayı başa alabiliriz veya güncel ayı baz alabiliriz
-            }
-
-            // Daha kararlı olması için: Ocak-Aralık düz sıralansın ama şeridin başlangıcı (scroll pozisyonu) sıfır olsun 
-            // ve şu anki ay (Eylül) listenin başında yer alsın istiyorsan diziyi o şekilde oluşturalım:
-            
             let siraliAylar = [];
             let simdikiAyIndex = simdikiTarih.getMonth();
 
             for (let i = 0; i < 12; i++) {
                 let ayIdx = (simdikiAyIndex + i) % 12;
-                let yilDeger = secilenYil;
-                // Eğer Aralık'tan Ocak'a geçiyorsak yılı 1 artırabiliriz ama şimdilik mevcut yıl üzerinden gidelim
                 siraliAylar.push({ index: ayIdx, ad: aylarListesi[ayIdx] });
             }
 
@@ -179,19 +170,42 @@
 
             const toplamGunSayisi = new Date(secilenYil, secilenAy + 1, 0).getDate();
 
+            // Firebase verilerinden günlük toplamları hesaplayalım
+            let gunlukToplamlar = {};
+            if (window.sonVeriler) {
+                Object.values(window.sonVeriler).forEach(item => {
+                    const hTarih = new Date(item.tarih);
+                    if (hTarih.getMonth() === secilenAy && hTarih.getFullYear() === secilenYil) {
+                        const g = hTarih.getDate();
+                        gunlukToplamlar[g] = (gunlukToplamlar[g] || 0) + item.tutar;
+                    }
+                });
+            }
+
             for (let gun = 1; gun <= toplamGunSayisi; gun++) {
                 const isSelected = (gun === secilenGun);
+                const harcamaVarMi = gunlukToplamlar[gun] > 0;
                 const gunBtn = document.createElement('button');
 
                 const tarihObj = new Date(secilenYil, secilenAy, gun);
                 const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
 
-                gunBtn.className = `px-3 py-1.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center text-xs ${
+                // Kutucuk tasarımı: Harcama varsa veya seçiliyse daha belirgin/büyük
+                gunBtn.className = `px-3 py-2 rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center min-w-[55px] ${
                     isSelected
-                        ? 'bg-orange-500 text-white shadow-sm'
-                        : 'bg-slate-50 text-gray-600 hover:bg-orange-100/40 border border-gray-100'
+                        ? 'bg-orange-600 text-white shadow-md scale-105 ring-2 ring-orange-400'
+                        : harcamaVarMi 
+                            ? 'bg-orange-100 text-orange-900 border border-orange-300 font-bold' 
+                            : 'bg-slate-50 text-gray-600 hover:bg-orange-50 border border-gray-100'
                 }`;
-                gunBtn.innerHTML = `<span class="text-[10px] opacity-80">${gunAdi}</span><span class="text-sm font-bold">${gun}</span>`;
+
+                let tutarMetni = harcamaVarMi ? `${gunlukToplamlar[gun].toLocaleString('tr-TR', { maximumFractionDigits: 0 })}₺` : '';
+
+                gunBtn.innerHTML = `
+                    <span class="text-[10px] ${isSelected ? 'text-orange-100' : 'opacity-70'}">${gunAdi}</span>
+                    <span class="text-sm font-black">${gun}</span>
+                    ${tutarMetni ? `<span class="text-[10px] font-extrabold mt-0.5 ${isSelected ? 'text-white bg-orange-700/60 px-1.5 py-0.5 rounded-md' : 'text-orange-600'}">${tutarMetni}</span>` : ''}
+                `;
 
                 gunBtn.onclick = () => {
                     secilenGun = gun;
@@ -244,8 +258,6 @@
                 alert("Harcama kaydedilemedi.");
             });
         }
-
-        window.sonVeriler = null;
 
         function verileriIsleVeGoster(data) {
             const listeDiv = document.getElementById('harcama-listesi');
