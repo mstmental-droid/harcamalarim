@@ -2,7 +2,6 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <!-- Safari'de sayfa yakınlaştırmasını önler ama aşağı çekip yenilemeye izin verir -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>HarcamalarımApp</title>
     <!-- Tailwind CSS CDN -->
@@ -48,7 +47,7 @@
             </div>
         </div>
 
-        <!-- Günler Şeridi -->
+        <!-- Günler Şeridi (Tekrar eklendi) -->
         <div class="bg-[#12141c] border-b border-slate-800 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
             <!-- Günler -->
         </div>
@@ -376,7 +375,7 @@
                         }
 
                         function onEnd() {
-                            if (!isGISsDragging = false;
+                            if (!isDragging) return;
                             isDragging = false;
                             itemElement.style.transition = 'transform 0.2s ease-out';
                             const diff = currentX - startX;
