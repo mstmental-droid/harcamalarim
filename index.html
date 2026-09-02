@@ -86,12 +86,14 @@
                         <option value="Yemek">Yemek</option>
                         <option value="Cafe">Cafe</option>
                         <option value="Online Alışveriş">Online Alışveriş</option>
+                        <option value="Neynoşa Özel">Neynoşa Özel</option>
+                        <option value="Medoya Özel">Medoya Özel</option>
                         <option value="Yolculuk">Yolculuk</option>
                         <option value="Diğer">Diğer</option>
                     </select>
                 </div>
 
-                <!-- Diğer Seçildiğinde Çıkacak Açıklama Kutusu (Başlangıçta gizli) -->
+                <!-- Diğer Seçildiğinde Çıkacak Açıklama Kutusu -->
                 <div id="aciklama-alani" class="hidden">
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Açıklama</label>
                     <input type="text" id="aciklama" placeholder="Açıklama" 
@@ -149,7 +151,6 @@
 
         window.sonVeriler = null;
 
-        // Kategori Kontrolü (Diğer seçilirse açıklama kutusunu aç)
         window.kategoriKontrol = function(select) {
             const alan = document.getElementById('aciklama-alani');
             const aciklamaInput = document.getElementById('aciklama');
