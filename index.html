@@ -20,7 +20,13 @@
 
     <!-- Giriş PIN Ekranı -->
     <div id="pin-ekrani" class="fixed inset-0 bg-[#12141c] z-50 flex flex-col items-center justify-center p-6">
-        <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center" onclick="pinAlninaTikla()">
+        <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center flex flex-col items-center" onclick="pinAlninaTikla()">
+            
+            <!-- Fotoğraf / Avatar Alanı (Dikey ve oval hatlı) -->
+            <div class="w-24 h-32 rounded-2xl overflow-hidden border-2 border-[#ff5722] shadow-lg mb-4 bg-[#1e222d] flex items-center justify-center">
+                <img src="https://i.imgur.com/RY5O8NY.jpg" alt="Avatar" class="w-full h-full object-cover">
+            </div>
+
             <h2 class="text-2xl font-black text-slate-100 mb-2">ÇOK HARCAMA!</h2>
             <p class="text-xs text-slate-400 mb-6">Hadi o meşhur şifreyi gir</p>
             
@@ -383,7 +389,6 @@
         }
 
         window.modalAc = function() {
-            // Modal başlığına seçilen tarihi açıkça yazalım (örn: Yeni Harcama Ekle (1 Eylül 2026))
             document.getElementById('modal-baslik').innerText = `Yeni Harcama Ekle (${secilenGun} ${aylarListesi[secilenAy]} ${secilenYil})`;
             document.getElementById('harcama-modal').classList.remove('hidden');
             document.getElementById('harcama-modal').classList.add('flex');
@@ -413,7 +418,6 @@
                 return;
             }
 
-            // Seçilen yıl, ay ve gün bilgilerini kullanarak o günün tarihini saat bilgisiyle birlikte oluşturalım
             const secilenTamTarih = new Date(secilenYil, secilenAy, secilenGun, 12, 0, 0).toISOString();
 
             const harcamalarRef = ref(db, 'harcamalar');
