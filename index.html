@@ -2,7 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mobil tarayıcılarda zoom yapmayı ve sayfa kaymasını tamamen kilitleyen viewport ayarı -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HarcamalarımApp</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,25 +15,36 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        /* Safari ve mobil cihazlarda sayfanın esnemesini ve elastik kaymasını engelleme */
+        html, body {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        .uygulama-alani {
+            touch-action: pan-y;
+        }
     </style>
 </head>
-<body class="bg-[#12141c] text-slate-100 min-h-screen flex flex-col items-center justify-between p-4 font-sans relative select-none">
+<body class="bg-[#12141c] text-slate-100 flex flex-col items-center justify-center p-3 font-sans select-none">
 
     <!-- Ana Konteyner -->
-    <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[95vh] border border-slate-800 relative">
+    <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[92vh] border border-slate-800 relative uygulama-alani">
         
         <!-- Üst Başlık, Medo ve Neynoş, Genel Toplam ve Ay Değiştirici -->
-        <div class="p-5 text-center shrink-0 border-b border-slate-800/80 bg-[#161922]">
+        <div class="p-4 text-center shrink-0 border-b border-slate-800/80 bg-[#161922]">
             <h1 class="text-xl font-extrabold tracking-wide text-slate-100">HARCAMALARIMIZ</h1>
             <p class="text-xs font-medium text-slate-400 mt-0.5">Medo ve Neynoş</p>
             
             <!-- Genel Toplam Harcama Alanı -->
-            <div class="mt-2 text-orange-400 font-extrabold text-sm" id="genel-toplam-yazi">
+            <div class="mt-1.5 text-orange-400 font-extrabold text-sm" id="genel-toplam-yazi">
                 Toplam: 0,00 TL
             </div>
             
             <!-- Ay Değiştirici -->
-            <div class="flex flex-col mt-3 bg-[#1e222d] py-2.5 px-3 rounded-2xl border border-slate-700/50">
+            <div class="flex flex-col mt-2.5 bg-[#1e222d] py-2 px-3 rounded-2xl border border-slate-700/50">
                 <div class="flex items-center justify-between">
                     <button onclick="ayDegistir(-1)" class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-xl transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
@@ -43,17 +55,17 @@
                     </button>
                 </div>
                 <!-- Aylık Toplam Tutar -->
-                <span id="aylik-toplam-yazi" class="text-xs text-orange-400 font-semibold mt-1">Aylık Toplam: 0,00 TL</span>
+                <span id="aylik-toplam-yazi" class="text-xs text-orange-400 font-semibold mt-0.5">Aylık Toplam: 0,00 TL</span>
             </div>
         </div>
 
         <!-- Günler Şeridi -->
-        <div class="bg-[#12141c] border-b border-slate-800 py-3 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
+        <div class="bg-[#12141c] border-b border-slate-800 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0 uygulama-alani" id="gun-seridi">
             <!-- Günler -->
         </div>
 
         <!-- İçerik Alanı (Harcama Listesi) -->
-        <div class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#12141c]">
+        <div class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#12141c] no-scrollbar uygulama-alani" style="touch-action: pan-y;">
             <div class="text-center text-slate-500 my-12" id="bos-mesaj">
                 Bu tarihte henüz harcama eklenmedi.
             </div>
@@ -63,8 +75,8 @@
         </div>
     </div>
 
-    <!-- Sağ altta yüzen yuvarlak artı butonu (FAB) -->
-    <button onclick="modalAc()" class="fixed bottom-6 right-6 w-14 h-14 bg-[#ff5722] hover:bg-[#f4511e] text-white rounded-2xl shadow-lg shadow-orange-900/40 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 z-40">
+    <!-- Sağ altta yüzen yuvarlak artı butonu (Safari alt menüsünün altında kalmaması için yukarı kaydırıldı) -->
+    <button onclick="modalAc()" class="fixed bottom-16 right-6 w-14 h-14 bg-[#ff5722] hover:bg-[#f4511e] text-white rounded-2xl shadow-xl shadow-orange-900/50 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 z-40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
         </svg>
