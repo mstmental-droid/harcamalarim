@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <!-- Mobil tarayıcılarda zoom yapmayı ve sayfa kaymasını tamamen kilitleyen viewport ayarı -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Safari'de sayfa yakınlaştırmasını önler ama aşağı çekip yenilemeye izin verir -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>HarcamalarımApp</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,23 +15,12 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Safari ve mobil cihazlarda sayfanın esnemesini ve elastik kaymasını engelleme */
-        html, body {
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-        .uygulama-alani {
-            touch-action: pan-y;
-        }
     </style>
 </head>
-<body class="bg-[#12141c] text-slate-100 flex flex-col items-center justify-center p-3 font-sans select-none">
+<body class="bg-[#12141c] text-slate-100 flex flex-col items-center justify-center min-h-screen p-3 font-sans select-none">
 
     <!-- Ana Konteyner -->
-    <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[92vh] border border-slate-800 relative uygulama-alani">
+    <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[92vh] border border-slate-800 relative">
         
         <!-- Üst Başlık, Medo ve Neynoş, Genel Toplam ve Ay Değiştirici -->
         <div class="p-4 text-center shrink-0 border-b border-slate-800/80 bg-[#161922]">
@@ -60,12 +49,12 @@
         </div>
 
         <!-- Günler Şeridi -->
-        <div class="bg-[#12141c] border-b border-slate-800 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0 uygulama-alani" id="gun-seridi">
+        <div class="bg-[#12141c] border-b border-slate-800 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
             <!-- Günler -->
         </div>
 
         <!-- İçerik Alanı (Harcama Listesi) -->
-        <div class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#12141c] no-scrollbar uygulama-alani" style="touch-action: pan-y;">
+        <div class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#12141c] no-scrollbar" style="-webkit-overflow-scrolling: touch;">
             <div class="text-center text-slate-500 my-12" id="bos-mesaj">
                 Bu tarihte henüz harcama eklenmedi.
             </div>
@@ -75,7 +64,7 @@
         </div>
     </div>
 
-    <!-- Sağ altta yüzen yuvarlak artı butonu (Safari alt menüsünün altında kalmaması için yukarı kaydırıldı) -->
+    <!-- Sağ altta yüzen yuvarlak artı butonu -->
     <button onclick="modalAc()" class="fixed bottom-16 right-6 w-14 h-14 bg-[#ff5722] hover:bg-[#f4511e] text-white rounded-2xl shadow-xl shadow-orange-900/50 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 z-40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
@@ -387,7 +376,7 @@
                         }
 
                         function onEnd() {
-                            if (!isDragging) return;
+                            if (!isGISsDragging = false;
                             isDragging = false;
                             itemElement.style.transition = 'transform 0.2s ease-out';
                             const diff = currentX - startX;
