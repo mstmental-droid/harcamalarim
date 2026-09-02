@@ -67,7 +67,7 @@
             </button>
 
             <h1 class="text-xl font-extrabold tracking-wide text-slate-100">HARCAMALARIMIZ</h1>
-            <p class="text-xs font-medium text-slate-400 mt-0.5">Medo ve Neynoş</p>
+            <p class="text-xs font-medium text-slate-400 mt-0.5">Medet Neynoş ve Aşmi</p>
             
             <!-- Genel Toplam Harcama Alanı -->
             <div class="mt-1.5 text-orange-400 font-extrabold text-sm" id="genel-toplam-yazi">
@@ -183,7 +183,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Menü Açma / Kapatma Fonksiyonları
         window.menuAc = function() {
             const menu = document.getElementById('yan-menu');
             const icerik = document.getElementById('menu-icerik');
@@ -203,7 +202,6 @@
             }, 300);
         }
 
-        // Kategori Toplamlarını Menüde Listeleme
         function kategoriToplamlariniGoster() {
             const listeDiv = document.getElementById('menu-kategori-listesi');
             listeDiv.innerHTML = '';
