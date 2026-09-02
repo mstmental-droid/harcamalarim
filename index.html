@@ -6,6 +6,16 @@
     <title>HarcamalarımApp</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Kaydırma çubuklarını gizleme (şık görünüm için) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col items-center justify-between p-4">
 
@@ -13,19 +23,24 @@
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[92vh] border border-orange-100">
         
         <!-- Üst Başlık -->
-        <div class="bg-orange-600 text-white p-4 text-center shadow-md">
+        <div class="bg-orange-600 text-white p-4 text-center shadow-md shrink-0">
             <h1 class="text-xl font-black tracking-wider text-orange-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">HARCAMALARIM</h1>
         </div>
 
-        <!-- Kaydırılabilir Ay Seçim Şeridi -->
-        <div class="bg-orange-50 border-b border-orange-100 py-3 overflow-x-auto scrollbar-none flex items-center justify-center gap-3 px-4 shrink-0" id="ay-seridi">
-            <!-- JavaScript ile aylar dinamik olarak buraya gelecek -->
+        <!-- 1. Kaydırılabilir Ay Seçim Şeridi (Ortalanmış) -->
+        <div class="bg-orange-50 border-b border-orange-100 py-3 overflow-x-auto no-scrollbar flex items-center gap-3 px-4 shrink-0" id="ay-seridi">
+            <!-- Aylar JavaScript ile eklenecek -->
+        </div>
+
+        <!-- 2. Seçilen Aya Ait Günler Şeridi -->
+        <div class="bg-white border-b border-gray-100 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
+            <!-- Günler JavaScript ile eklenecek -->
         </div>
 
         <!-- İçerik Alanı (Harcama Listesi) -->
         <div class="flex-1 p-4 overflow-y-auto bg-slate-50">
             <div class="text-center text-gray-400 my-8" id="bos-mesaj">
-                Bu ay henüz harcama eklenmedi.
+                Bu tarihte henüz harcama eklenmedi.
             </div>
             <div id="harcama-listesi" class="space-y-3">
                 <!-- Harcamalar buraya dinamik olarak eklenecek -->
@@ -33,7 +48,7 @@
         </div>
 
         <!-- Alt Sabit Alan ve Büyük Buton -->
-        <div class="p-4 bg-white border-t border-orange-100">
+        <div class="p-4 bg-white border-t border-orange-100 shrink-0">
             <button onclick="modalAc()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-2xl shadow-[0_0_15px_rgba(234,88,12,0.4)] transition duration-200 text-lg flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -103,49 +118,99 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Aktif Seçili Ay ve Yıl (Varsayılan: Şimdiki Zaman - Eylül 2026 vb.)
+        // Tarih Durumları (Varsayılan: Bugünün ayı ve günü)
         let simdikiTarih = new Date();
-        let secilenAy = simdikiTarih.getMonth(); // 0-11 arası
+        let secilenAy = simdikiTarih.getMonth(); 
         let secilenYil = simdikiTarih.getFullYear();
+        let secilenGun = simdikiTarih.getDate(); // Varsayılan bugün
 
         const aylarListesi = [
             "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
         ];
 
-        // Ay şeridini ekrana çizen fonksiyon
+        // Ay Şeridini Oluşturma ve Ortalama
         function aySeridiniOlustur() {
             const seritDiv = document.getElementById('ay-seridi');
             seritDiv.innerHTML = '';
 
-            // Önceki ay, Seçili ay ve Sonraki ay mantığı için döngü veya sabit liste
-            // Kullanıcı sağa sola kaydırabilsin diye yılın tüm aylarını sıralayalım ve seçili olanı ortada gösterelim
             aylarListesi.forEach((ayAdi, index) => {
                 const isSelected = (index === secilenAy);
                 const btn = document.createElement('button');
                 
-                // Tasarım: Seçili olan büyük, turuncu ve vurgulu; diğerleri küçük ve soluk
-                btn.className = `px-4 py-2 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap text-sm ${
+                btn.className = `px-4 py-2 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap shrink-0 ${
                     isSelected 
-                        ? 'bg-orange-600 text-white shadow-md scale-105 text-base' 
-                        : 'bg-white text-gray-500 hover:bg-orange-100/50 border border-orange-100'
+                        ? 'bg-orange-600 text-white shadow-md scale-110 text-base' 
+                        : 'bg-white text-gray-500 hover:bg-orange-100/50 border border-orange-100 text-sm'
                 }`;
                 btn.innerText = `${ayAdi} ${secilenYil}`;
                 
                 btn.onclick = () => {
                     secilenAy = index;
+                    // Ay değiştirildiğinde gün olarak o ayın 1'ini veya mantıklı bir günü seçelim
+                    secilenGun = 1; 
                     aySeridiniOlustur();
-                    verileriIsleVeGoster(window.sonVeriler); // Verileri yeniden filtrele
+                    gunSeridiniOlustur();
+                    verileriIsleVeGoster(window.sonVeriler);
                 };
 
                 seritDiv.appendChild(btn);
             });
 
-            // Seçilen aya otomatik kaydırma
-            const aktifBtn = seritDiv.children[secilenAy];
-            if (aktifBtn) {
-                aktifBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            // Seçilen ayı ortala
+            setTimeout(() => {
+                const aktifBtn = seritDiv.children[secilenAy];
+                if (aktifBtn) {
+                    seritDiv.scrollTo({
+                        left: aktifBtn.offsetLeft - seritDiv.offsetWidth / 2 + aktifBtn.offsetWidth / 2,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 50);
+        }
+
+        // Gün Şeridini Oluşturma (Seçilen ayın günleri)
+        function gunSeridiniOlustur() {
+            const gunSeritDiv = document.getElementById('gun-seridi');
+            gunSeritDiv.innerHTML = '';
+
+            // Seçilen ayın kaç gün çektiğini bulma
+            const toplamGunSayisi = new Date(secilenYil, secilenAy + 1, 0).getDate();
+
+            for (let gun = 1; gun <= toplamGunSayisi; gun++) {
+                const isSelected = (gun === secilenGun);
+                const gunBtn = document.createElement('button');
+
+                // Günün haftanın hangi günü olduğunu bulma (Pzt, Sal vb.)
+                const tarihObj = new Date(secilenYil, secilenAy, gun);
+                const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
+
+                gunBtn.className = `px-3 py-1.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center text-xs ${
+                    isSelected
+                        ? 'bg-orange-500 text-white shadow-sm scale-105'
+                        : 'bg-slate-50 text-gray-600 hover:bg-orange-100/40 border border-gray-100'
+                }`;
+                gunBtn.innerHTML = `<span class="text-[10px] opacity-80">${gunAdi}</span><span class="text-sm font-bold">${gun}</span>`;
+
+                gunBtn.onclick = () => {
+                    secilenGun = gun;
+                    gunSeridiniOlustur();
+                    verileriIsleVeGoster(window.sonVeriler);
+                };
+
+                gunSeritDiv.appendChild(gunBtn);
             }
+
+            // Seçilen günü ortala
+            setTimeout(() => {
+                const aktifGunBtn = gunSeritDiv.children[secilenGun - 1];
+                if (aktifGunBtn) {
+                    gunSeritDiv.scrollTo({
+                        left: aktifGunBtn.offsetLeft - gunSeritDiv.offsetWidth / 2 + aktifGunBtn.offsetWidth / 2,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 50);
         }
 
         window.modalAc = function() {
@@ -190,7 +255,6 @@
             });
         }
 
-        // Global veri saklama değişkeni
         window.sonVeriler = null;
 
         function verileriIsleVeGoster(data) {
@@ -202,10 +266,12 @@
             if (data) {
                 const harcamalar = Object.entries(data).reverse();
                 
-                // Sadece seçilen ay ve yıla ait harcamaları filtrele
+                // Seçilen Ay, Yıl ve Güne göre filtreleme
                 const filtrelenmisHarcamalar = harcamalar.filter(([id, item]) => {
-                    const harcamaTarihi = new Date(item.tarih);
-                    return harcamaTarihi.getMonth() === secilenAy && harcamaTarihi.getFullYear() === secilenYil;
+                    const hTarih = new Date(item.tarih);
+                    return hTarih.getMonth() === secilenAy && 
+                           hTarih.getFullYear() === secilenYil && 
+                           hTarih.getDate() === secilenGun;
                 });
 
                 if (filtrelenmisHarcamalar.length > 0) {
@@ -213,14 +279,15 @@
                     
                     filtrelenmisHarcamalar.forEach(([id, item]) => {
                         const tarihObj = new Date(item.tarih);
-                        const tarihFormatli = tarihObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                        
+                        const saatFormatli = tarihObj.toLocaleDateString('tr-TR', { hour: '2-digit', minute: '2-digit' }); // veya sadece saat
+                        const zamanStr = tarihObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
                         const itemElement = document.createElement('div');
                         itemElement.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center";
                         itemElement.innerHTML = `
                             <div>
                                 <span class="inline-block px-3 py-1 text-xs font-bold bg-orange-50 text-orange-600 rounded-lg mb-1">${item.kategori}</span>
-                                <p class="text-xs text-gray-400">${tarihFormatli}</p>
+                                <p class="text-xs text-gray-400">Saat: ${zamanStr}</p>
                             </div>
                             <div class="text-right">
                                 <span class="text-lg font-black text-gray-800">${item.tutar.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</span>
@@ -229,7 +296,7 @@
                         listeDiv.appendChild(itemElement);
                     });
                 } else {
-                    bosMesaj.innerText = `${aylarListesi[secilenAy]} ayı için henüz harcama eklenmedi.`;
+                    bosMesaj.innerText = `${secilenGun} ${aylarListesi[secilenAy]} ${secilenYil} tarihinde harcama bulunmuyor.`;
                     bosMesaj.classList.remove('hidden');
                 }
             } else {
@@ -243,11 +310,13 @@
         onValue(harcamalarRef, (snapshot) => {
             window.sonVeriler = snapshot.val();
             aySeridiniOlustur();
+            gunSeridiniOlustur();
             verileriIsleVeGoster(window.sonVeriler);
         });
 
-        // Sayfa ilk açıldığında şeridi oluştur
+        // Sayfa ilk açıldığında çalıştır
         aySeridiniOlustur();
+        gunSeridiniOlustur();
     </script>
 </body>
 </html>
