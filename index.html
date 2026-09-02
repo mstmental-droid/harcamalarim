@@ -3,61 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HarcamalarımApp | Neon Turuncu</title>
-    <!-- Tailwind CSS CDN - Güncel Versiyon -->
+    <title>HarcamalarımApp</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        // Neon Turuncu Teması Tanımlama
-                        primary: '#ff6600', // Ana Neon Turuncu
-                        primary-dark: '#cc5200', // Koyu Turuncu (Hover için)
-                        primary-light: '#fff0e6' // Açık Turuncu (Arkaplanlar için)
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Neon Efekti */
-        .neon-text {
-            text-shadow: 0 0 5px rgba(255, 102, 0, 0.7);
-        }
-        .neon-btn {
-            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
-        }
-        .neon-btn:hover {
-            box-shadow: 0 6px 20px rgba(255, 102, 0, 0.6);
-        }
-    </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col items-center p-4 font-sans">
+<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-between p-4">
 
-    <!-- Ana Konteyner - Daha modern gölge -->
-    <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl shadow-slate-200 overflow-hidden flex flex-col h-[95vh] border border-slate-100">
+    <!-- Ana Konteyner -->
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[90vh] border border-orange-100">
         
         <!-- Üst Bilgi / Başlık - Neon Turuncu -->
-        <div class="bg-primary p-6 text-center border-b-4 border-primary-dark">
-            <h1 class="text-3xl font-extrabold text-white tracking-wider neon-text">HARCAMALARIM</h1>
-            <p class="text-sm text-white/80 mt-1 font-medium">Hızlı ve Ortak Takip</p>
+        <div class="bg-orange-600 text-white p-6 text-center shadow-lg">
+            <h1 class="text-2xl font-black tracking-wider text-orange-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">HARCAMALARIM</h1>
+            <p class="text-xs text-orange-200 mt-1 font-medium">Ortak Bütçe Takibi</p>
         </div>
 
-        <!-- İçerik Alanı (Harcama Listesi) -->
-        <div class="flex-1 p-4 overflow-y-auto bg-slate-100/50 space-y-3" id="liste-kapsayici">
-            <div class="text-center text-slate-400 my-10" id="bos-mesaj">
-                <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Henüz harcama eklenmedi.<br>Aşağıdaki butonu kullan.
+        <!-- İçerik Alanı (Harcama Listesi ve Özet) -->
+        <div class="flex-1 p-4 overflow-y-auto bg-slate-50">
+            <div class="text-center text-gray-400 my-8" id="bos-mesaj">
+                Henüz harcama eklenmedi.
             </div>
-            <!-- Harcamalar buraya dinamik olarak eklenecek -->
-            <div id="harcama-listesi" class="space-y-3"></div>
+            <div id="harcama-listesi" class="space-y-3">
+                <!-- Harcamalar buraya dinamik olarak eklenecek -->
+            </div>
         </div>
 
-        <!-- Alt Sabit Alan ve Büyük Buton - Neon Turuncu -->
-        <div class="p-5 bg-white border-t border-slate-100 rounded-b-3xl">
-            <button onclick="modalAc()" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-5 rounded-2xl transition duration-300 text-xl flex items-center justify-center gap-3 neon-btn tracking-wide">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Alt Sabit Alan ve Büyük Buton -->
+        <div class="p-4 bg-white border-t border-orange-100">
+            <button onclick="modalAc()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-2xl shadow-[0_0_15px_rgba(234,88,12,0.4)] transition duration-200 text-lg flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
                 HARCAMA EKLE
@@ -65,17 +39,17 @@
         </div>
     </div>
 
-    <!-- Harcama Ekle Modal -->
-    <div id="harcama-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl transform scale-95 transition-transform duration-300 border-t-8 border-primary" id="modal-icerik">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b pb-3 border-slate-100">Yeni Harcama</h2>
+    <!-- Harcama Ekle Modal / Ekranı -->
+    <div id="harcama-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border-t-4 border-orange-600">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Yeni Harcama Ekle</h2>
             
-            <form id="harcama-form" onsubmit="harcamaKaydet(event)" class="space-y-5">
+            <form id="harcama-form" onsubmit="harcamaKaydet(event)" class="space-y-4">
                 <!-- Kategori Seçimi -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-600 mb-2">Kategori</label>
-                    <select id="kategori" required class="w-full p-4 border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-primary-light focus:border-primary focus:outline-none bg-white text-lg font-medium appearance-none">
-                        <option value="" disabled selected>Kategori Seç</option>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori</label>
+                    <select id="kategori" required class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none bg-white font-medium">
+                        <option value="" disabled selected>Kategori Seçin</option>
                         <option value="Maket">Maket</option>
                         <option value="Sigara">Sigara</option>
                         <option value="Yemek">Yemek</option>
@@ -86,23 +60,20 @@
                     </select>
                 </div>
 
-                <!-- Tutar Girişi -->
+                <!-- Tutar Girişi (Virgüllü) -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-600 mb-2">Tutar (TL)</label>
-                    <div class="relative">
-                        <input type="text" id="tutar" placeholder="0,00" required 
-                               class="w-full p-4 pl-6 pr-12 text-2xl font-bold border-2 border-slate-200 rounded-2xl focus:ring-4 focus:ring-primary-light focus:border-primary focus:outline-none placeholder:text-slate-300"
-                               oninput="tutarBicimlendir(this)">
-                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">₺</span>
-                    </div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tutar (TL)</label>
+                    <input type="text" id="tutar" placeholder="0,00" required 
+                           class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none text-lg font-bold"
+                           oninput="tutarBicimlendir(this)">
                 </div>
 
                 <!-- Butonlar -->
-                <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="modalKapat()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 rounded-2xl transition duration-200 text-lg">
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="modalKapat()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 rounded-xl transition duration-200">
                         İptal
                     </button>
-                    <button type="submit" class="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-2xl transition duration-200 text-lg neon-btn">
+                    <button type="submit" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-xl shadow-[0_0_10px_rgba(234,88,12,0.3)] transition duration-200">
                         Kaydet
                     </button>
                 </div>
@@ -115,7 +86,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // SENİN GÜNCEL FİREBASE CONFİGİN BURADA (DEĞİŞTİRME)
         const firebaseConfig = {
             apiKey: "AIzaSyBVtbl20mGQJda1QmqD9Bm-4PNyRBuWnUY",
             authDomain: "harcamalarimapp.firebaseapp.com",
@@ -129,41 +99,21 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // UI Yardımcıları
-        const modal = document.getElementById('harcama-modal');
-        const modalIcerik = document.getElementById('modal-icerik');
-
         window.modalAc = function() {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            // Animasyon için küçük bir gecikme
-            setTimeout(() => {
-                modal.classList.add('opacity-100');
-                modalIcerik.classList.remove('scale-95');
-                modalIcerik.classList.add('scale-100');
-            }, 10);
-            document.getElementById('kategori').focus(); // Mobilde klavyeyi açar
+            document.getElementById('harcama-modal').classList.remove('hidden');
+            document.getElementById('harcama-modal').classList.add('flex');
         }
 
         window.modalKapat = function() {
-            modal.classList.remove('opacity-100');
-            modalIcerik.classList.remove('scale-100');
-            modalIcerik.classList.add('scale-95');
-            // Animasyon bitince gizle
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.getElementById('harcama-form').reset();
-            }, 300);
+            document.getElementById('harcama-modal').classList.add('hidden');
+            document.getElementById('harcama-modal').classList.remove('flex');
+            document.getElementById('harcama-form').reset();
         }
 
-        // Virgüllü Tutar Düzenleme (Basit hali)
         window.tutarBicimlendir = function(input) {
-            // Sadece sayı ve virgül/nokta girişine izin ver (geliştirilebilir)
-            input.value = input.value.replace(/[^0-9,\.]/g, '');
+            let value = input.value.replace(/\./g, '').replace(',', '.');
         }
 
-        // Harcama Kaydetme
         window.harcamaKaydet = function(event) {
             event.preventDefault();
             
@@ -171,29 +121,26 @@
             let tutarStr = document.getElementById('tutar').value.replace(',', '.');
             const tutar = parseFloat(tutarStr);
 
-            if (!kategori || isNaN(tutar) || tutar <= 0) {
-                alert("Lütfen kategori seçin ve geçerli bir tutar girin.");
+            if (isNaN(tutar)) {
+                alert("Lütfen geçerli bir tutar girin.");
                 return;
             }
 
-            const tarih = new Date().toISOString(); // ISO formatında tarih/saat
+            const tarih = new Date().toISOString();
 
-            // Firebase'e Gönderim
             const harcamalarRef = ref(db, 'harcamalar');
             push(harcamalarRef, {
                 kategori: kategori,
                 tutar: tutar,
-                tarih: tarih,
-                ekleyen: "Medet" // İleride kullanıcı ayrımı eklenebilir
+                tarih: tarih
             }).then(() => {
                 modalKapat();
             }).catch((error) => {
                 console.error("Kayıt hatası: ", error);
-                alert("Harcama kaydedilemedi: " + error.message);
+                alert("Harcama kaydedilemedi.");
             });
         }
 
-        // Firebase'den Canlı Veri Dinleme
         const harcamalarRef = ref(db, 'harcamalar');
         onValue(harcamalarRef, (snapshot) => {
             const data = snapshot.val();
@@ -204,25 +151,21 @@
 
             if (data) {
                 bosMesaj.classList.add('hidden');
-                // En son eklenen en üstte görünecek şekilde ters çevirelim
                 const harcamalar = Object.entries(data).reverse();
 
                 harcamalar.forEach(([id, item]) => {
                     const tarihObj = new Date(item.tarih);
-                    const tarihFormatli = tarihObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) + ', ' + tarihObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-                    
-                    // Kategoriye göre ikon veya özel renk belirlenebilir (ileride)
+                    const tarihFormatli = tarihObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
                     
                     const itemElement = document.createElement('div');
-                    itemElement.className = "bg-white p-5 rounded-2xl shadow-sm flex justify-between items-center border border-slate-100 hover:border-primary/20 transition group";
+                    itemElement.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center";
                     itemElement.innerHTML = `
-                        <div class="flex items-center gap-4">
-                             <!-- Kategori Etiketi (Turuncu) -->
-                            <span class="inline-block px-3 py-1.5 text-sm font-bold bg-primary-light text-primary rounded-full tracking-wide">${item.kategori}</span>
-                            <p class="text-xs text-slate-400 font-medium">${tarihFormatli}</p>
+                        <div>
+                            <span class="inline-block px-3 py-1 text-xs font-bold bg-orange-50 text-orange-600 rounded-lg mb-1">${item.kategori}</span>
+                            <p class="text-xs text-gray-400">${tarihFormatli}</p>
                         </div>
                         <div class="text-right">
-                            <span class="text-2xl font-black text-slate-900 group-hover:text-primary transition">${item.tutar.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span class="text-lg font-bold text-slate-400">₺</span></span>
+                            <span class="text-lg font-black text-gray-800">${item.tutar.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</span>
                         </div>
                     `;
                     listeDiv.appendChild(itemElement);
