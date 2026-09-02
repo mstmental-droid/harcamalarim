@@ -18,6 +18,20 @@
 </head>
 <body class="bg-[#12141c] text-slate-100 flex flex-col items-center justify-center min-h-screen p-3 font-sans select-none">
 
+    <!-- Giriş PIN Ekranı (Başlangıçta görünür) -->
+    <div id="pin-ekrani" class="fixed inset-0 bg-[#12141c] z-50 flex flex-col items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center">
+            <h2 class="text-2xl font-black text-slate-100 mb-2">HARCAMALARIMIZ</h2>
+            <p class="text-xs text-slate-400 mb-6">Lütfen 4 haneli PIN kodunu girin</p>
+            
+            <input type="password" id="pin-input" maxlength="4" placeholder="••••" 
+                   class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono"
+                   oninput="pinKontrol(this)">
+            
+            <p id="pin-hata" class="text-red-500 text-xs font-semibold hidden">Hatalı PIN! Tekrar deneyin.</p>
+        </div>
+    </div>
+
     <!-- Ana Konteyner -->
     <div class="w-full max-w-md bg-[#161922] rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[92vh] border border-slate-800 relative">
         
@@ -84,17 +98,17 @@
                         <option value="Maket">Maket</option>
                         <option value="Sigara">Sigara</option>
                         <option value="Aşmiye Özel">Aşmiye Özel</option>
+                        <option value="Neynoşa Özel">Neynoşa Özel</option>
+                        <option value="Medoya Özel">Medoya Özel</option>
                         <option value="Yemek">Yemek</option>
                         <option value="Cafe">Cafe</option>
                         <option value="Online Alışveriş">Online Alışveriş</option>
-                        <option value="Neynoşa Özel">Neynoşa Özel</option>
-                        <option value="Medoya Özel">Medoya Özel</option>
                         <option value="Yolculuk">Yolculuk</option>
                         <option value="Diğer">Diğer</option>
                     </select>
                 </div>
 
-                <!-- Diğer Seçildiğinde Çıkacak Açıklama Kutusu -->
+                <!-- Açıklama Kutusu (Açıklama gerektiren kategoriler seçildiğinde görünür) -->
                 <div id="aciklama-alani" class="hidden">
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Açıklama</label>
                     <input type="text" id="aciklama" placeholder="Açıklama" 
@@ -112,7 +126,7 @@
                 <!-- Butonlar -->
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="modalKapat()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3.5 rounded-2xl transition duration-200">
-                        İptal
+                        İçeri Al / İptal
                     </button>
                     <button type="submit" class="flex-1 bg-[#ff5722] hover:bg-[#f4511e] text-white font-semibold py-3.5 rounded-2xl shadow-lg transition duration-200">
                         Kaydet
@@ -140,6 +154,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // PIN Kontrolü
+        window.pinKontrol = function(input) {
+            if (input.value === "0000") {
+                document.getElementById('pin-ekrani').classList.add('hidden');
+            } else if (input.value.length === 4) {
+                document.getElementById('pin-hata').classList.remove('hidden');
+                setTimeout(() => {
+                    input.value = '';
+                    document.getElementById('pin-hata').classList.add('hidden');
+                }, 1000);
+            }
+        }
+
         let simdikiTarih = new Date();
         let secilenAy = simdikiTarih.getMonth(); 
         let secilenYil = simdikiTarih.getFullYear();
@@ -152,10 +179,13 @@
 
         window.sonVeriler = null;
 
+        // Açıklama gerektiren özel kategoriler ve Diğer
         window.kategoriKontrol = function(select) {
             const alan = document.getElementById('aciklama-alani');
             const aciklamaInput = document.getElementById('aciklama');
-            if (select.value === 'Diğer') {
+            const aciklamaGerektirenler = ['Aşmiye Özel', 'Neynoşa Özel', 'Medoya Özel', 'Diğer'];
+            
+            if (aciklamaGerektirenler.includes(select.value)) {
                 alan.classList.remove('hidden');
             } else {
                 alan.classList.add('hidden');
@@ -284,7 +314,7 @@
             const harcamalarRef = ref(db, 'harcamalar');
             push(harcamalarRef, {
                 kategori: kategori,
-                aciklama: kategori === 'Diğer' ? aciklama : '',
+                aciklama: aciklama,
                 tutar: tutar,
                 tarih: tarih
             }).then(() => {
@@ -328,7 +358,7 @@
                         const tarihObj = new Date(item.tarih);
                         const zamanStr = tarihObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-                        const kategoriMetni = (item.kategori === 'Diğer' && item.aciklama) ? `Diğer (${item.aciklama})` : item.kategori;
+                        const kategoriMetni = item.aciklama ? `${item.kategori} (${item.aciklama})` : item.kategori;
 
                         const container = document.createElement('div');
                         container.className = "relative overflow-hidden rounded-2xl";
