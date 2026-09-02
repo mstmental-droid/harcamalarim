@@ -116,7 +116,7 @@
     <!-- Harcama Ekle Modal -->
     <div id="harcama-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-[#1e222d] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-700 text-slate-100">
-            <h2 class="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-3">Yeni Harcama Ekle</h2>
+            <h2 class="text-xl font-bold text-slate-100 mb-4 border-b border-slate-700 pb-3" id="modal-baslik">Yeni Harcama Ekle</h2>
             
             <form id="harcama-form" onsubmit="harcamaKaydet(event)" class="space-y-4">
                 <!-- Kategori Seçimi -->
@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <!-- Firebase and Uygulama Mantığı -->
+    <!-- Firebase ve Uygulama Mantığı -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -383,6 +383,8 @@
         }
 
         window.modalAc = function() {
+            // Modal başlığına seçilen tarihi açıkça yazalım (örn: Yeni Harcama Ekle (1 Eylül 2026))
+            document.getElementById('modal-baslik').innerText = `Yeni Harcama Ekle (${secilenGun} ${aylarListesi[secilenAy]} ${secilenYil})`;
             document.getElementById('harcama-modal').classList.remove('hidden');
             document.getElementById('harcama-modal').classList.add('flex');
         }
@@ -411,14 +413,15 @@
                 return;
             }
 
-            const tarih = new Date().toISOString();
+            // Seçilen yıl, ay ve gün bilgilerini kullanarak o günün tarihini saat bilgisiyle birlikte oluşturalım
+            const secilenTamTarih = new Date(secilenYil, secilenAy, secilenGun, 12, 0, 0).toISOString();
 
             const harcamalarRef = ref(db, 'harcamalar');
             push(harcamalarRef, {
                 kategori: kategori,
                 aciklama: aciklama,
                 tutar: tutar,
-                tarih: tarih
+                tarih: secilenTamTarih
             }).then(() => {
                 modalKapat();
             }).catch((error) => {
