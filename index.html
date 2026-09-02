@@ -26,7 +26,7 @@
             <h1 class="text-xl font-black tracking-wider text-orange-100 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">HARCAMALARIM</h1>
         </div>
 
-        <!-- 1. Sabit / Kaydırılabilir Ay Seçim Şeridi -->
+        <!-- 1. Ay Seçim Şeridi (Şu anki ay en başta başlayacak şekilde sıralandı) -->
         <div class="bg-orange-50 border-b border-orange-100 py-3 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="ay-seridi">
             <!-- Aylar JavaScript ile eklenecek -->
         </div>
@@ -117,7 +117,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Varsayılan: Bugünün tarihi (Örn: 2 Eylül 2026)
         let simdikiTarih = new Date();
         let secilenAy = simdikiTarih.getMonth(); 
         let secilenYil = simdikiTarih.getFullYear();
@@ -128,14 +127,31 @@
             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
         ];
 
-        let ilkYukleme = true; // Sayfanın ilk açılışını yakalamak için
-
         function aySeridiniOlustur() {
             const seritDiv = document.getElementById('ay-seridi');
             seritDiv.innerHTML = '';
 
-            aylarListesi.forEach((ayAdi, index) => {
-                const isSelected = (index === secilenAy);
+            // Aylar listesini şu anki aydan başlatıp yılın sonuna, sonra baştan devam edecek şekilde düzenleyelim
+            // Böylece şu anki ay her zaman en başta (sola dayalı ve tam görünür) olacak.
+            for (let i = 0; i < 12; i++) {
+                let index = (secilenAy + i) % 12; // Sabit olarak seçilen ayı başa alabiliriz veya güncel ayı baz alabiliriz
+            }
+
+            // Daha kararlı olması için: Ocak-Aralık düz sıralansın ama şeridin başlangıcı (scroll pozisyonu) sıfır olsun 
+            // ve şu anki ay (Eylül) listenin başında yer alsın istiyorsan diziyi o şekilde oluşturalım:
+            
+            let siraliAylar = [];
+            let simdikiAyIndex = simdikiTarih.getMonth();
+
+            for (let i = 0; i < 12; i++) {
+                let ayIdx = (simdikiAyIndex + i) % 12;
+                let yilDeger = secilenYil;
+                // Eğer Aralık'tan Ocak'a geçiyorsak yılı 1 artırabiliriz ama şimdilik mevcut yıl üzerinden gidelim
+                siraliAylar.push({ index: ayIdx, ad: aylarListesi[ayIdx] });
+            }
+
+            siraliAylar.forEach((ayObj) => {
+                const isSelected = (ayObj.index === secilenAy);
                 const btn = document.createElement('button');
                 
                 btn.className = `px-4 py-2 rounded-2xl font-bold transition-all duration-200 whitespace-nowrap shrink-0 ${
@@ -143,11 +159,11 @@
                         ? 'bg-orange-600 text-white shadow-md text-base' 
                         : 'bg-white text-gray-500 hover:bg-orange-100/50 border border-orange-100 text-sm'
                 }`;
-                btn.innerText = `${ayAdi} ${secilenYil}`;
+                btn.innerText = `${ayObj.ad} ${secilenYil}`;
                 
                 btn.onclick = () => {
-                    secilenAy = index;
-                    secilenGun = 1; // Başka aya geçince o ayın 1'ini seç
+                    secilenAy = ayObj.index;
+                    secilenGun = 1; 
                     aySeridiniOlustur();
                     gunSeridiniOlustur();
                     verileriIsleVeGoster(window.sonVeriler);
@@ -155,19 +171,6 @@
 
                 seritDiv.appendChild(btn);
             });
-
-            // Sadece ilk açılışta seçilen ayı ortaya getir, sonrasında kullanıcıya bırak
-            if (ilkYukleme) {
-                setTimeout(() => {
-                    const aktifBtn = seritDiv.children[secilenAy];
-                    if (aktifBtn) {
-                        seritDiv.scrollTo({
-                            left: aktifBtn.offsetLeft - seritDiv.offsetWidth / 2 + aktifBtn.offsetWidth / 2,
-                            behavior: 'auto'
-                        });
-                    }
-                }, 50);
-            }
         }
 
         function gunSeridiniOlustur() {
@@ -197,20 +200,6 @@
                 };
 
                 gunSeritDiv.appendChild(gunBtn);
-            }
-
-            // Sadece ilk açılışta bugünün gününü ortaya getir
-            if (ilkYukleme) {
-                setTimeout(() => {
-                    const aktifGunBtn = gunSeritDiv.children[secilenGun - 1];
-                    if (aktifGunBtn) {
-                        gunSeritDiv.scrollTo({
-                            left: aktifGunBtn.offsetLeft - gunSeritDiv.offsetWidth / 2 + aktifGunBtn.offsetWidth / 2,
-                            behavior: 'auto'
-                        });
-                    }
-                    ilkYukleme = false; // İlk yükleme tamamlandı, artık kullanıcı serbestçe kaydırabilir
-                }, 50);
             }
         }
 
