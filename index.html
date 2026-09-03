@@ -22,7 +22,7 @@
     <div id="pin-ekrani" class="fixed inset-0 bg-[#12141c] z-50 flex flex-col items-center justify-center p-6">
         <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center flex flex-col items-center" onclick="pinAlninaTikla()">
             
-            <!-- Fotoğraf / Avatar Alanı (Büyütülmüş Boyut) -->
+            <!-- Fotoğraf / Avatar Alanı -->
             <div class="w-40 h-56 rounded-2xl overflow-hidden border-2 border-[#ff5722] shadow-lg mb-4 bg-[#1e222d] flex items-center justify-center">
                 <img src="https://i.hizliresim.com/lijkvgcp.jpg" alt="Avatar" class="w-full h-full object-cover">
             </div>
@@ -30,7 +30,8 @@
             <h2 class="text-2xl font-black text-slate-100 mb-2">ÇOK HARCAMA!</h2>
             <p class="text-xs text-slate-400 mb-6">Hadi o meşhur şifreyi gir</p>
             
-            <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="numeric" pattern="[0-9]*"
+            <!-- inputmode="decimal" ile hem sayılar hem de virgül/nokta tuşu görünür -->
+            <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="decimal"
                    class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono pointer-events-none"
                    readonly>
             
@@ -130,7 +131,7 @@
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Kategori</label>
                     <select id="kategori" required onchange="kategoriKontrol(this)" class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none bg-[#12141c] text-slate-100 font-medium">
                         <option value="" disabled selected>Kategori Seçin</option>
-                        <option value="Maket">Maket</option>
+                        <option value="Market">Market</option>
                         <option value="Sigara">Sigara</option>
                         <option value="Aşmiye Özel">Aşmiye Özel</option>
                         <option value="Neynoşa Özel">Neynoşa Özel</option>
@@ -138,7 +139,7 @@
                         <option value="Yemek">Yemek</option>
                         <option value="Cafe">Cafe</option>
                         <option value="Online Alışveriş">Online Alışveriş</option>
-                        <option value="Yolculuk">Yolculuk</option>
+                        <option value="Ulaşım">Ulaşım</option>
                         <option value="Diğer">Diğer</option>
                     </select>
                 </div>
@@ -150,10 +151,10 @@
                            class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none text-sm bg-[#12141c] text-slate-100 placeholder:text-slate-600">
                 </div>
 
-                <!-- Tutar Girişi -->
+                <!-- Tutar Girişi (inputmode="decimal" ile virgül tuşu aktif olur) -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Tutar (TL)</label>
-                    <input type="text" id="tutar" placeholder="0,00" required inputmode="numeric"
+                    <input type="text" id="tutar" placeholder="0,00" required inputmode="decimal"
                            class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none text-lg font-bold bg-[#12141c] text-slate-100 placeholder:text-slate-600"
                            oninput="tutarBicimlendir(this)">
                 </div>
@@ -213,8 +214,8 @@
             listeDiv.innerHTML = '';
 
             const kategoriListesi = [
-                "Maket", "Sigara", "Aşmiye Özel", "Neynoşa Özel", 
-                "Medoya Özel", "Yemek", "Cafe", "Online Alışveriş", "Yolculuk", "Diğer"
+                "Market", "Sigara", "Aşmiye Özel", "Neynoşa Özel", 
+                "Medoya Özel", "Yemek", "Cafe", "Online Alışveriş", "Ulaşım", "Diğer"
             ];
 
             let kategoriToplamlar = {};
@@ -418,7 +419,9 @@
                 return;
             }
 
-            const secilenTamTarih = new Date(secilenYil, secilenAy, secilenGun, 12, 0, 0).toISOString();
+            // O anki gerçek saat, dakika ve saniyeyi alarak seçilen güne işleyelim
+            const simdi = new Date();
+            const secilenTamTarih = new Date(secilenYil, secilenAy, secilenGun, simdi.getHours(), simdi.getMinutes(), simdi.getSeconds()).toISOString();
 
             const harcamalarRef = ref(db, 'harcamalar');
             push(harcamalarRef, {
