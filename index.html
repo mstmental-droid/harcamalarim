@@ -370,11 +370,13 @@
                 const tarihObj = new Date(secilenYil, secilenAy, gun);
                 const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
 
-                // Sadece seçili olan gün (turuncu) büyük ve ölçeklenmiş olacak, harcaması olan geçmiş günler standart boyutta kalacak
-                gunBtn.className = `rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center ${
+                // Tüm kutuların genişlik ve yükseklikleri (min-w ve py/px) sabit tutuldu, böylece seçili gün sıkışıp küçülmez.
+                gunBtn.className = `rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center px-3 py-2.5 min-w-[58px] ${
                     isSelected
-                        ? 'bg-[#ff5722] text-white shadow-xl scale-110 ring-4 ring-orange-400/50 px-4 py-3 min-w-[65px] z-10 font-black'
-                        : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800 px-3 py-2.5 min-w-[55px]'
+                        ? 'bg-[#ff5722] text-white shadow-xl ring-4 ring-orange-400/50 z-10 font-black'
+                        : harcamaVarMi 
+                            ? 'bg-[#252a37] text-orange-400 border border-slate-700 font-bold' 
+                            : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800'
                 }`;
 
                 let tutarMetni = '';
@@ -385,7 +387,7 @@
 
                 gunBtn.innerHTML = `
                     <span class="text-[10px] ${isSelected ? 'text-orange-100 font-semibold' : 'opacity-60'}">${gunAdi}</span>
-                    <span class="${isSelected ? 'text-base font-black' : 'text-sm font-bold'}">${gun}</span>
+                    <span class="${isSelected ? 'text-base font-black text-white' : 'text-sm font-bold'}">${gun}</span>
                     ${tutarMetni ? `<span class="text-[10px] font-extrabold mt-0.5 ${isSelected ? 'text-white bg-orange-700/80 px-1.5 py-0.5 rounded-md' : 'text-orange-400'}">${tutarMetni}</span>` : ''}
                 `;
 
