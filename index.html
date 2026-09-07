@@ -128,7 +128,7 @@
                 <!-- Kategori Seçimi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Kategori</label>
-                    <select id="kategori" required onchange="kategoriKontrol(this)" class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none bg-[#12141c] text-slate-100 font-medium">
+                    <select id="kategori" required class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none bg-[#12141c] text-slate-100 font-medium">
                         <option value="" disabled selected>Kategori Seçin</option>
                         <option value="Market">Market</option>
                         <option value="Sigara">Sigara</option>
@@ -143,10 +143,10 @@
                     </select>
                 </div>
 
-                <!-- Açıklama Kutusu -->
-                <div id="aciklama-alani" class="hidden">
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">Açıklama</label>
-                    <input type="text" id="aciklama" placeholder="Açıklama" 
+                <!-- Açıklama Kutusu (Artık tüm kategoriler için her zaman açık ve görünür) -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-1">Açıklama (İsteğe bağlı)</label>
+                    <input type="text" id="aciklama" placeholder="Açıklama yazabilirsiniz..." 
                            class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none text-sm bg-[#12141c] text-slate-100 placeholder:text-slate-600">
                 </div>
 
@@ -288,19 +288,6 @@
 
         window.sonVeriler = null;
 
-        window.kategoriKontrol = function(select) {
-            const alan = document.getElementById('aciklama-alani');
-            const aciklamaInput = document.getElementById('aciklama');
-            const aciklamaGerektirenler = ['Aşmiye Özel', 'Neynoşa Özel', 'Medoya Özel', 'Diğer'];
-            
-            if (aciklamaGerektirenler.includes(select.value)) {
-                alan.classList.remove('hidden');
-            } else {
-                alan.classList.add('hidden');
-                aciklamaInput.value = '';
-            }
-        }
-
         window.ayDegistir = function(yon) {
             secilenAy += yon;
             if (secilenAy > 11) {
@@ -352,7 +339,7 @@
             let gunlukToplamlar = {};
             if (window.sonVeriler) {
                 Object.values(window.sonVeriler).forEach(item => {
-                    const hTarih = new Date(item.turarih || item.tarih);
+                    const hTarih = new Date(item.tarih);
                     if (hTarih.getMonth() === secilenAy && hTarih.getFullYear() === secilenYil) {
                         const g = hTarih.getDate();
                         gunlukToplamlar[g] = (gunlukToplamlar[g] || 0) + item.tutar;
@@ -370,8 +357,6 @@
                 const tarihObj = new Date(secilenYil, secilenAy, gun);
                 const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
 
-                // Hepsine birebir aynı sabit genişlik (min-w-[65px]) ve yükseklik veriyoruz. 
-                // Seçili gün (turuncu) sadece renk, z-index ve hafif kalın yazı ile öne çıkıyor, boyutsal olarak diğerleriyle %100 eşit!
                 gunBtn.className = `rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center px-3 py-2.5 min-w-[65px] h-[64px] ${
                     isSelected
                         ? 'bg-[#ff5722] text-white shadow-xl ring-4 ring-orange-400/50 z-10 font-black'
@@ -422,7 +407,6 @@
             document.getElementById('harcama-modal').classList.add('hidden');
             document.getElementById('harcama-modal').classList.remove('flex');
             document.getElementById('harcama-form').reset();
-            document.getElementById('aciklama-alani').classList.add('hidden');
         }
 
         window.tutarBicimlendir = function(input) {
