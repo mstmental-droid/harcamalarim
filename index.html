@@ -30,7 +30,6 @@
             <h2 class="text-2xl font-black text-slate-100 mb-2">ÇOK HARCAMA!</h2>
             <p class="text-xs text-slate-400 mb-6">Hadi o meşhur şifreyi gir</p>
             
-            <!-- inputmode="decimal" ile hem sayılar hem de virgül/nokta tuşu görünür -->
             <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="decimal"
                    class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono pointer-events-none"
                    readonly>
@@ -151,7 +150,7 @@
                            class="w-full p-3.5 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#ff5722] focus:outline-none text-sm bg-[#12141c] text-slate-100 placeholder:text-slate-600">
                 </div>
 
-                <!-- Tutar Girişi (inputmode="decimal" ile virgül tuşu aktif olur) -->
+                <!-- Tutar Girişi -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Tutar (TL)</label>
                     <input type="text" id="tutar" placeholder="0,00" required inputmode="decimal"
@@ -277,6 +276,7 @@
             }
         }
 
+        // Her açılışta veya yenilemede gerçek güncel tarihi baz al
         let simdikiTarih = new Date();
         let secilenAy = simdikiTarih.getMonth(); 
         let secilenYil = simdikiTarih.getFullYear();
@@ -311,7 +311,13 @@
                 secilenAy = 11;
                 secilenYil--;
             }
-            secilenGun = 1; 
+            
+            const simdi = new Date();
+            if (secilenAy === simdi.getMonth() && secilenYil === simdi.getFullYear()) {
+                secilenGun = simdi.getDate();
+            } else {
+                secilenGun = 1;
+            }
             ekraniGuncelle();
         }
 
@@ -355,6 +361,8 @@
                 });
             }
 
+            let secilenButonElementi = null;
+
             for (let gun = 1; gun <= toplamGunSayisi; gun++) {
                 const isSelected = (gun === secilenGun);
                 const harcamaVarMi = gunlukToplamlar[gun] > 0;
@@ -386,6 +394,17 @@
                 };
 
                 gunSeritDiv.appendChild(gunBtn);
+
+                if (isSelected) {
+                    secilenButonElementi = gunBtn;
+                }
+            }
+
+            // Seçili günü (bugünü) otomatik olarak yatay şeridin ortasına kaydır
+            if (secilenButonElementi) {
+                setTimeout(() => {
+                    secilenButonElementi.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }, 50);
             }
         }
 
@@ -419,7 +438,6 @@
                 return;
             }
 
-            // O anki gerçek saat, dakika ve saniyeyi alarak seçilen güne işleyelim
             const simdi = new Date();
             const secilenTamTarih = new Date(secilenYil, secilenAy, secilenGun, simdi.getHours(), simdi.getMinutes(), simdi.getSeconds()).toISOString();
 
