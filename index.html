@@ -451,7 +451,6 @@
                         }
 
                         function onMove(e) {
-                            if (!isDrafting = false) return; // güvenlik
                             if (!isDragging) return;
                             currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
                             const diff = currentX - startX;
@@ -485,7 +484,7 @@
                     });
                 } else {
                     bosMesaj.innerText = `${secilenGun} ${aylarListesi[secilenAy]} ${secilenYil} tarihinde harcama bulunmuyor.`;
-                    bosMesaj.classList.remove('hidden');
+                    bosMesaj.classList.add('hidden');
                 }
             } else {
                 bosMesaj.innerText = "Henüz harcama eklenmedi.";
