@@ -370,15 +370,15 @@
                 const tarihObj = new Date(secilenYil, secilenAy, gun);
                 const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
 
-                gunBtn.className = `px-3 py-2 rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center min-w-[55px] ${
+                // Seçili günün (turuncu olanın) diğerlerinden daha büyük ve belirgin olmasını sağlıyoruz
+                gunBtn.className = `rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center ${
                     isSelected
-                        ? 'bg-[#ff5722] text-white shadow-md scale-105 ring-2 ring-orange-400'
+                        ? 'bg-[#ff5722] text-white shadow-xl scale-110 ring-4 ring-orange-400/50 px-4 py-3 min-w-[65px] z-10 font-black'
                         : harcamaVarMi 
-                            ? 'bg-[#252a37] text-orange-400 border border-slate-700 font-bold' 
-                            : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800'
+                            ? 'bg-[#252a37] text-orange-400 border border-slate-700 font-bold px-3 py-2.5 min-w-[55px]' 
+                            : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800 px-3 py-2.5 min-w-[55px]'
                 }`;
 
-                // Günlük toplam tutarı küsüratlı (örn: 1.836,50₺) veya tamsayıysa normal gösterecek şekilde ayarlıyoruz
                 let tutarMetni = '';
                 if (harcamaVarMi) {
                     const t = gunlukToplamlar[gun];
@@ -386,9 +386,9 @@
                 }
 
                 gunBtn.innerHTML = `
-                    <span class="text-[10px] ${isSelected ? 'text-orange-100' : 'opacity-60'}">${gunAdi}</span>
-                    <span class="text-sm font-black">${gun}</span>
-                    ${tutarMetni ? `<span class="text-[10px] font-extrabold mt-0.5 ${isSelected ? 'text-white bg-orange-700/60 px-1.5 py-0.5 rounded-md' : 'text-orange-400'}">${tutarMetni}</span>` : ''}
+                    <span class="text-[10px] ${isSelected ? 'text-orange-100 font-semibold' : 'opacity-60'}">${gunAdi}</span>
+                    <span class="${isSelected ? 'text-base font-black' : 'text-sm font-bold'}">${gun}</span>
+                    ${tutarMetni ? `<span class="text-[10px] font-extrabold mt-0.5 ${isSelected ? 'text-white bg-orange-700/80 px-1.5 py-0.5 rounded-md' : 'text-orange-400'}">${tutarMetni}</span>` : ''}
                 `;
 
                 gunBtn.onclick = () => {
@@ -540,6 +540,7 @@
 
                         function onEnd() {
                             if (!isDragging) return;
+                            isDivider = false;
                             isDragging = false;
                             itemElement.style.transition = 'transform 0.2s ease-out';
                             const diff = currentX - startX;
