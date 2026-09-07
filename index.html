@@ -18,34 +18,6 @@
 </head>
 <body class="bg-[#12141c] text-slate-100 flex flex-col items-center justify-center min-h-screen p-3 font-sans select-none">
 
-    <!-- Giriş PIN Ekranı -->
-    <div id="pin-ekrani" class="fixed inset-0 bg-[#12141c] z-50 flex flex-col items-center justify-center p-6">
-        <div class="w-full max-w-sm bg-[#161922] p-8 rounded-3xl shadow-2xl border border-slate-800 text-center flex flex-col items-center" onclick="pinAlninaTikla()">
-            
-            <!-- Fotoğraf / Avatar Alanı -->
-            <div class="w-40 h-56 rounded-2xl overflow-hidden border-2 border-[#ff5722] shadow-lg mb-4 bg-[#1e222d] flex items-center justify-center">
-                <img src="https://i.hizliresim.com/lijkvgcp.jpg" alt="Avatar" class="w-full h-full object-cover">
-            </div>
-
-            <h2 class="text-2xl font-black text-slate-100 mb-2">ÇOK HARCAMA!</h2>
-            <p class="text-xs text-slate-400 mb-6">Hadi o meşhur şifreyi gir</p>
-            
-            <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="decimal"
-                   class="w-full text-center text-3xl tracking-widest p-4 bg-[#1e222d] border border-slate-700 rounded-2xl text-slate-100 focus:outline-none focus:border-[#ff5722] mb-6 font-mono pointer-events-none"
-                   readonly>
-            
-            <button type="button" class="w-full bg-[#ff5722] text-white font-bold py-3.5 rounded-2xl shadow-lg active:scale-95 transition">
-                SALAK AŞMİ
-            </button>
-
-            <p id="pin-hata" class="text-red-500 text-xs font-semibold mt-4 hidden">Hatalı PIN! Tekrar deneyin.</p>
-        </div>
-    </div>
-
-    <!-- Görünmez ve Gerçek Sayı Giriş Alanı -->
-    <input type="text" id="gizli-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" 
-           class="absolute opacity-0 pointer-events-none" oninput="pinGercekGiris(this)">
-
     <!-- Açılır Menü (Drawer) -->
     <div id="yan-menu" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm transition-opacity duration-300" onclick="menuKapat(event)">
         <div class="absolute left-0 top-0 bottom-0 w-4/5 max-w-xs bg-[#161922] p-5 shadow-2xl border-r border-slate-800 flex flex-col transform -translate-x-full transition-transform duration-300" id="menu-icerik" onclick="event.stopPropagation()">
@@ -143,7 +115,7 @@
                     </select>
                 </div>
 
-                <!-- Açıklama Kutusu (Artık tüm kategoriler için her zaman açık ve görünür) -->
+                <!-- Açıklama Kutusu -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-300 mb-1">Açıklama (İsteğe bağlı)</label>
                     <input type="text" id="aciklama" placeholder="Açıklama yazabilirsiniz..." 
@@ -238,42 +210,6 @@
                 `;
                 listeDiv.appendChild(satir);
             });
-        }
-
-        window.pinAlninaTikla = function() {
-            const gizliInput = document.getElementById('gizli-input');
-            gizliInput.focus();
-        }
-
-        window.onload = function() {
-            setTimeout(() => {
-                const gizliInput = document.getElementById('gizli-input');
-                if (gizliInput) gizliInput.focus();
-            }, 300);
-        };
-
-        window.pinGercekGiris = function(input) {
-            let val = input.value.replace(/[^0-9]/g, '');
-            if (val.length > 4) val = val.slice(0, 4);
-            input.value = val;
-
-            let masked = '';
-            for (let i = 0; i < val.length; i++) {
-                masked += '•';
-            }
-            document.getElementById('pin-input').value = masked;
-
-            if (val === "0000") {
-                document.getElementById('pin-ekrani').classList.add('hidden');
-                input.blur();
-            } else if (val.length === 4) {
-                document.getElementById('pin-hata').classList.remove('hidden');
-                setTimeout(() => {
-                    input.value = '';
-                    document.getElementById('pin-input').value = '';
-                    document.getElementById('pin-hata').classList.add('hidden');
-                }, 1000);
-            }
         }
 
         let simdikiTarih = new Date();
@@ -515,6 +451,7 @@
                         }
 
                         function onMove(e) {
+                            if (!isDrafting = false) return; // güvenlik
                             if (!isDragging) return;
                             currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
                             const diff = currentX - startX;
