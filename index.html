@@ -276,7 +276,6 @@
             }
         }
 
-        // Her açılışta veya yenilemede gerçek güncel tarihi baz al
         let simdikiTarih = new Date();
         let secilenAy = simdikiTarih.getMonth(); 
         let secilenYil = simdikiTarih.getFullYear();
@@ -379,7 +378,12 @@
                             : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800'
                 }`;
 
-                let tutarMetni = harcamaVarMi ? `${gunlukToplamlar[gun].toLocaleString('tr-TR', { maximumFractionDigits: 0 })}₺` : '';
+                // Günlük toplam tutarı küsüratlı (örn: 1.836,50₺) veya tamsayıysa normal gösterecek şekilde ayarlıyoruz
+                let tutarMetni = '';
+                if (harcamaVarMi) {
+                    const t = gunlukToplamlar[gun];
+                    tutarMetni = t % 1 !== 0 ? `${t.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}₺` : `${t.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}₺`;
+                }
 
                 gunBtn.innerHTML = `
                     <span class="text-[10px] ${isSelected ? 'text-orange-100' : 'opacity-60'}">${gunAdi}</span>
@@ -400,7 +404,6 @@
                 }
             }
 
-            // Seçili günü (bugünü) otomatik olarak yatay şeridin ortasına kaydır
             if (secilenButonElementi) {
                 setTimeout(() => {
                     secilenButonElementi.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
