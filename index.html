@@ -97,7 +97,7 @@
         </div>
 
         <!-- Günler Şeridi -->
-        <div class="bg-[#12141c] border-b border-slate-800 py-2.5 overflow-x-auto no-scrollbar flex items-center gap-2 px-4 shrink-0" id="gun-seridi">
+        <div class="bg-[#12141c] border-b border-slate-800 py-3 overflow-x-auto no-scrollbar flex items-center gap-2.5 px-4 shrink-0" id="gun-seridi">
             <!-- Günler -->
         </div>
 
@@ -370,13 +370,13 @@
                 const tarihObj = new Date(secilenYil, secilenAy, gun);
                 const gunAdi = tarihObj.toLocaleDateString('tr-TR', { weekday: 'short' });
 
-                // Tüm kutuların genişlik ve yükseklikleri (min-w ve py/px) sabit tutuldu, böylece seçili gün sıkışıp küçülmez.
-                gunBtn.className = `rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center px-3 py-2.5 min-w-[58px] ${
+                // Seçili gün (turuncu) hem daha geniş (min-w-[72px]) hem de daha yüksek (py-3.5) yapılarak diğerlerinden büyük kılındı.
+                gunBtn.className = `rounded-2xl transition-all duration-200 whitespace-nowrap shrink-0 flex flex-col items-center justify-center ${
                     isSelected
-                        ? 'bg-[#ff5722] text-white shadow-xl ring-4 ring-orange-400/50 z-10 font-black'
+                        ? 'bg-[#ff5722] text-white shadow-xl ring-4 ring-orange-400/50 px-4 py-3.5 min-w-[72px] z-10 font-black'
                         : harcamaVarMi 
-                            ? 'bg-[#252a37] text-orange-400 border border-slate-700 font-bold' 
-                            : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800'
+                            ? 'bg-[#252a37] text-orange-400 border border-slate-700 font-bold px-3 py-2.5 min-w-[60px]' 
+                            : 'bg-[#161922] text-slate-400 hover:bg-[#252a37] border border-slate-800 px-3 py-2.5 min-w-[60px]'
                 }`;
 
                 let tutarMetni = '';
@@ -387,7 +387,7 @@
 
                 gunBtn.innerHTML = `
                     <span class="text-[10px] ${isSelected ? 'text-orange-100 font-semibold' : 'opacity-60'}">${gunAdi}</span>
-                    <span class="${isSelected ? 'text-base font-black text-white' : 'text-sm font-bold'}">${gun}</span>
+                    <span class="${isSelected ? 'text-lg font-black text-white' : 'text-sm font-bold'}">${gun}</span>
                     ${tutarMetni ? `<span class="text-[10px] font-extrabold mt-0.5 ${isSelected ? 'text-white bg-orange-700/80 px-1.5 py-0.5 rounded-md' : 'text-orange-400'}">${tutarMetni}</span>` : ''}
                 `;
 
